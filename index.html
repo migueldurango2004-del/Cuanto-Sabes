@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Cuánto Sabes De Biblia?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#d4af6a;
+  --gold-light:#f3dfa0;
+  --gold-dark:#a8833e;
+  --bg-deep:#070b1c;
+  --bg-mid:#0d1230;
+  --bg-purple:#180d33;
+  --text:#ece9f5;
+  --text-dim:#9d99b8;
+  --border:rgba(212,175,106,.18);
+  --glass:rgba(255,255,255,.035);
+  --success:#4ade80;
+  --danger:#f87171;
+  --radius:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Outfit',system-ui,sans-serif;
+  color:var(--text);
+  min-height:100dvh;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  background:var(--bg-deep);
+  overflow-x:hidden;
+  position:relative;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ============ FONDO ANIMADO (GPU-friendly) ============ */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 15% -10%, rgba(80,50,140,.55), transparent 55%),
+    radial-gradient(ellipse at 85% 110%, rgba(60,40,120,.55), transparent 55%),
+    linear-gradient(160deg,var(--bg-deep),var(--bg-mid) 50%,var(--bg-purple));
+}
+.orb{position:absolute;border-radius:50%;will-change:transform;pointer-events:none}
+.orb-1{width:520px;height:520px;top:-180px;left:-160px;
+  background:radial-gradient(circle,rgba(212,175,106,.35) 0%,rgba(212,175,106,.14) 35%,transparent 72%);
+  animation:float1 24s ease-in-out infinite}
+.orb-2{width:560px;height:560px;bottom:-220px;right:-180px;
+  background:radial-gradient(circle,rgba(124,92,255,.35) 0%,rgba(124,92,255,.12) 35%,transparent 72%);
+  animation:float2 28s ease-in-out infinite}
+.orb-3{width:380px;height:380px;top:38%;left:55%;
+  background:radial-gradient(circle,rgba(255,120,180,.22) 0%,rgba(255,120,180,.08) 35%,transparent 72%);
+  animation:float3 32s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(90px,70px,0)}}
+@keyframes float2{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-80px,-90px,0)}}
+@keyframes float3{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-120px,60px,0)}}
+
+.estrellas{position:absolute;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 18% 22%, rgba(255,255,255,.85), transparent),
+    radial-gradient(1px 1px at 72% 58%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1.6px 1.6px at 42% 82%, rgba(255,255,255,.75), transparent),
+    radial-gradient(1px 1px at 88% 18%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1px 1px at 8% 68%, rgba(255,255,255,.65), transparent),
+    radial-gradient(1.3px 1.3px at 58% 42%, rgba(255,255,255,.7), transparent);
+  background-size:200px 200px,250px 250px,300px 300px,350px 350px,400px 400px,450px 450px;
+  background-repeat:repeat;
+  opacity:.5;
+  animation:twinkle 7s ease-in-out infinite alternate;
+}
+@keyframes twinkle{from{opacity:.35}to{opacity:.7}}
+
+/* ============ APP + TARJETA ============ */
+.app{width:100%;max-width:620px}
+.tarjeta{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:30px 26px 26px;
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);
+  position:relative;
+  overflow:hidden;
+}
+.tarjeta::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(212,175,106,.55),transparent);
+  pointer-events:none;
+}
+.centro{text-align:center}
+
+/* ============ PANTALLAS ============ */
+.pantalla{display:none}
+.pantalla.activa{display:block;animation:subir .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes subir{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:none}}
+
+/* ============ TIPOGRAFÍA ============ */
+h1,h2{font-family:'Cormorant Garamond',serif;font-weight:700;line-height:1.1}
+h1{
+  font-size:2.4rem;
+  background:linear-gradient(100deg,var(--gold-light),var(--gold) 50%,#ff9fb4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin-bottom:.55rem;letter-spacing:-.01em;
+}
+.subtitulo{color:var(--text-dim);font-size:.98rem;line-height:1.55;margin-bottom:1.5rem}
+
+/* ============ HERO (inicio) ============ */
+.emblem{
+  width:78px;height:78px;margin:0 auto 1.1rem;
+  display:grid;place-items:center;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(243,223,160,.35),rgba(212,175,106,.1) 60%,transparent 90%);
+  border:1px solid rgba(212,175,106,.5);
+  box-shadow:0 0 40px rgba(212,175,106,.25),inset 0 0 20px rgba(212,175,106,.15);
+  position:relative;
+}
+.emblem span{
+  font-size:2rem;line-height:1;
+  color:var(--gold-light);
+  text-shadow:0 0 14px rgba(212,175,106,.7);
+}
+.emblem::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(212,175,106,.15);
+  animation:pulse 3s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.08);opacity:.8}}
+
+.etiquetas{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:1.7rem}
+.etiqueta{
+  font-size:.78rem;padding:.42rem .85rem;border-radius:999px;color:var(--text-dim);
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+}
+.etiqueta b{color:var(--gold);font-weight:600}
+
+/* ============ BOTONES ============ */
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.btn-primario{
+  display:inline-flex;align-items:center;justify-content:center;gap:.55rem;
+  padding:.95rem 2.2rem;border-radius:999px;font-weight:600;font-size:1rem;color:#20160a;
+  background:linear-gradient(100deg,var(--gold-light),var(--gold) 55%,#c9a05a);
+  box-shadow:0 10px 30px rgba(212,175,106,.35),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:transform .18s,box-shadow .18s;
+  letter-spacing:.01em;
+}
+.btn-primario:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(212,175,106,.5),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-primario:active{transform:translateY(0) scale(.98)}
+
+.btn-fantasma{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.75rem 1.15rem;border-radius:999px;font-weight:500;font-size:.9rem;
+  border:1px solid rgba(212,175,106,.42);color:var(--gold);
+  background:rgba(212,175,106,.08);transition:.18s;
+}
+.btn-fantasma:hover:not(:disabled){background:rgba(212,175,106,.17);transform:translateY(-1px)}
+.btn-fantasma:disabled{opacity:.32;cursor:not-allowed}
+.btn-fantasma small{opacity:.7;font-size:.76rem}
+
+/* ============ HUD ============ */
+.hud{display:flex;gap:8px;margin-bottom:14px}
+.chip{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:9px 6px;border-radius:14px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  transition:.3s;
+}
+.chip-lbl{font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
+.chip-val{font-weight:700;font-size:1.08rem;color:var(--gold)}
+#chipRacha{transition:.3s}
+#chipRacha.oculto{opacity:.22}
+#chipRacha.hot{border-color:rgba(255,143,171,.5);box-shadow:0 0 18px rgba(255,143,171,.25)}
+#chipRacha.hot .chip-val{color:#ff9fb4}
+
+.barra{height:7px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:18px}
+.barra-fill{height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--gold),#ff9fb4);
+  transition:width .5s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 0 12px rgba(212,175,106,.5);
+}
+
+.contador{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem}
+.pregunta{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.42rem;line-height:1.35;margin-bottom:1.25rem;font-weight:600;
+  color:var(--text);
+}
+
+/* ============ OPCIONES ============ */
+.opciones{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.opcion{
+  display:flex;align-items:center;gap:.85rem;width:100%;text-align:left;
+  padding:.88rem 1rem;border-radius:15px;font-size:.96rem;line-height:1.3;
+  background:rgba(255,255,255,.045);border:1px solid var(--border);
+  transition:transform .18s,background .18s,border-color .18s;
+  opacity:0;animation:optIn .4s cubic-bezier(.2,.8,.2,1) forwards;
+}
+.opcion:nth-child(1){animation-delay:.02s}
+.opcion:nth-child(2){animation-delay:.06s}
+.opcion:nth-child(3){animation-delay:.10s}
+.opcion:nth-child(4){animation-delay:.14s}
+@keyframes optIn{to{opacity:1}}
+.opcion:hover:not(.bloqueada){background:rgba(255,255,255,.09);border-color:rgba(212,175,106,.55);transform:translateX(4px)}
+.opcion .letra{
+  flex:0 0 28px;height:28px;display:grid;place-items:center;border-radius:9px;
+  font-size:.78rem;font-weight:700;color:var(--gold);
+  background:rgba(212,175,106,.13);border:1px solid rgba(212,175,106,.3);
+  transition:.2s;
+}
+.opcion.bloqueada{cursor:default}
+.opcion.correcta{
+  background:rgba(74,222,128,.14);border-color:var(--success);
+  box-shadow:0 0 24px rgba(74,222,128,.22);
+}
+.opcion.correcta .letra{background:var(--success);color:#042c16;border-color:var(--success)}
+.opcion.incorrecta{background:rgba(248,113,113,.12);border-color:var(--danger)}
+.opcion.incorrecta .letra{background:var(--danger);color:#2b0609;border-color:var(--danger)}
+
+/* ============ PISTA ============ */
+.pista-caja{
+  display:none;gap:.65rem;align-items:flex-start;
+  padding:.85rem 1rem;border-radius:15px;margin-bottom:12px;
+  background:rgba(212,175,106,.08);border:1px dashed rgba(212,175,106,.45);
+  font-size:.9rem;line-height:1.5;color:#f3e3b4;
+}
+.pista-caja.visible{display:flex;animation:pop .35s ease}
+.pista-caja p{flex:1}
+
+/* ============ FEEDBACK ============ */
+.feedback{display:none;padding:.75rem .95rem;border-radius:13px;font-size:.92rem;margin-bottom:12px;line-height:1.45}
+.feedback.visible{display:block;animation:pop .3s ease}
+.feedback.ok{background:rgba(74,222,128,.13);color:#b8f5d3;border:1px solid rgba(74,222,128,.35)}
+.feedback.mal{background:rgba(248,113,113,.11);color:#ffc4c4;border:1px solid rgba(248,113,113,.35)}
+.feedback strong{color:#fff}
+
+/* ============ FILA BOTONES ============ */
+.fila-botones{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#btnSiguiente{display:none}
+#btnSiguiente.visible{display:inline-flex;animation:pop .25s ease;margin-left:auto}
+
+/* ============ FINAL ============ */
+.medalla{font-size:3.6rem;margin-bottom:.3rem;animation:pop .55s ease;filter:drop-shadow(0 0 20px rgba(212,175,106,.5))}
+.resultados{display:flex;gap:9px;margin:1.4rem 0 1.5rem}
+.res{
+  flex:1;display:flex;flex-direction:column;gap:2px;padding:.9rem .4rem;border-radius:16px;
+  background:rgba(255,255,255,.045);border:1px solid var(--border);
+}
+.res span{font-weight:700;font-size:1.25rem;color:var(--gold)}
+.res small{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
+
+/* ============ PROMESA BÍBLICA ============ */
+.promesa{
+  position:relative;
+  padding:1.7rem 1.4rem 1.4rem;
+  margin:0 0 1.5rem;
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(212,175,106,.1),rgba(212,175,106,.02));
+  border:1px solid rgba(212,175,106,.35);
+  overflow:hidden;
+  text-align:center;
+  animation:pop .7s ease .15s backwards;
+}
+.promesa::before{
+  content:'"';
+  position:absolute;top:-18px;left:14px;
+  font-family:'Cormorant Garamond',serif;font-size:6rem;
+  color:rgba(212,175,106,.22);line-height:1;pointer-events:none;
+}
+.promesa::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 0%,rgba(212,175,106,.18),transparent 65%);
+}
+.promesa-lbl{
+  position:relative;z-index:1;
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;margin-bottom:.7rem;
+}
+.promesa-texto{
+  position:relative;z-index:1;
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+  font-size:1.18rem;line-height:1.5;color:var(--gold-light);
+  margin-bottom:.7rem;
+}
+.promesa-ref{
+  position:relative;z-index:1;
+  font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:480px){
+  h1{font-size:2rem}
+  .pregunta{font-size:1.25rem}
+  .tarjeta{padding:24px 20px 22px}
+  .btn-primario{padding:.85rem 1.8rem;font-size:.95rem}
+  .opcion{font-size:.92rem;padding:.8rem .9rem}
+  .promesa-texto{font-size:1.05rem}
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="estrellas"></div>
+</div>
+
+<div class="app">
+
+  <!-- ========= INICIO ========= -->
+  <section id="inicio" class="pantalla activa">
+    <div class="tarjeta centro">
+      <div class="emblem"><span>✝</span></div>
+      <h1>¿Cuánto Sabes<br>De Biblia?</h1>
+      <p class="subtitulo">18 preguntas al azar. Si te trabas, pide una pista…<br>pero te costará la mitad de los puntos 😉</p>
+      <div class="etiquetas">
+        <span class="etiqueta"><b>48</b> preguntas</span>
+        <span class="etiqueta"><b>💡</b> pistas</span>
+        <span class="etiqueta"><b>🔥</b> racha</span>
+        <span class="etiqueta"><b>✦</b> promesa final</span>
+      </div>
+      <button class="btn-primario" onclick="comenzar()">Comenzar ▶</button>
+    </div>
+  </section>
+
+  <!-- ========= JUEGO ========= -->
+  <section id="quiz" class="pantalla">
+    <div class="tarjeta">
+      <div class="hud">
+        <div class="chip"><span class="chip-lbl">Puntos</span><span class="chip-val" id="hudPuntos">0</span></div>
+        <div class="chip"><span class="chip-lbl">Aciertos</span><span class="chip-val" id="hudAciertos">0/18</span></div>
+        <div class="chip oculto" id="chipRacha"><span class="chip-lbl">Racha</span><span class="chip-val" id="hudRacha">0</span></div>
+      </div>
+      <div class="barra"><div class="barra-fill" id="progreso"></div></div>
+
+      <p class="contador" id="numPreg">Pregunta 1 / 18</p>
+      <h2 class="pregunta" id="textoPregunta"></h2>
+
+      <div class="opciones" id="opciones"></div>
+
+      <div class="pista-caja" id="cajaPista"><span>💡</span><p id="pista"></p></div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+
+      <div class="fila-botones">
+        <button class="btn-fantasma" id="btnPista">💡 Pista <small>−5 pts</small></button>
+        <button class="btn-primario" id="btnSiguiente">Siguiente →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= FINAL ========= -->
+  <section id="final" class="pantalla">
+    <div class="tarjeta centro">
+      <div class="medalla" id="medalla">🏆</div>
+      <h1 id="tituloFinal">¡Terminaste!</h1>
+      <p class="subtitulo" id="mensajeFinal"></p>
+
+      <div class="resultados">
+        <div class="res"><span id="resPuntos">0</span><small>puntos</small></div>
+        <div class="res"><span id="resAciertos">0/18</span><small>aciertos</small></div>
+        <div class="res"><span id="resPrecision">0%</span><small>precisión</small></div>
+      </div>
+
+      <div class="promesa">
+        <div class="promesa-lbl">✦ Una promesa para ti ✦</div>
+        <p class="promesa-texto" id="promesaTexto"></p>
+        <p class="promesa-ref" id="promesaRef"></p>
+      </div>
+
+      <button class="btn-primario" onclick="comenzar()">Jugar otra vez 🔁</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================
+   BANCO DE PREGUNTAS — "correcta" es el índice (0–3)
+   ========================================================= */
+const BANCO = [
+  /* ---------- ANTIGUO TESTAMENTO ---------- */
+  {p:"¿Quién construyó el arca para salvar a su familia y a los animales?",
+   opciones:["Noé","Moisés","Abraham","Josué"],correcta:0,
+   pista:"Dios le pidió madera de ciprés y le dio las medidas exactas."},
+  {p:"¿Cuántos días y noches estuvo Jonás dentro del gran pez?",
+   opciones:["Tres","Siete","Cuarenta","Uno"],correcta:0,
+   pista:"Jesús lo comparó con el tiempo que Él estaría en el sepulcro."},
+  {p:"¿Con qué derrotó David a Goliat?",
+   opciones:["Una honda y una piedra","Una espada","Una lanza","Un arco"],correcta:0,
+   pista:"Rechazó la armadura de Saúl; eligió sus herramientas de pastor."},
+  {p:"¿Cómo se llamaba el jardín donde Dios puso a Adán y Eva?",
+   opciones:["Edén","Caná","Sion","Getsemaní"],correcta:0,
+   pista:"De allí salía un río que se dividía en cuatro brazos."},
+  {p:"¿Qué mar se abrió para que Israel cruzara hacia la libertad?",
+   opciones:["Mar Rojo","Mar Muerto","Mar de Galilea","Mar Mediterráneo"],correcta:0,
+   pista:"Moisés extendió su vara y sopló un viento fuerte toda la noche."},
+  {p:"¿Qué hombre tenía una fuerza extraordinaria que estaba en su cabello?",
+   opciones:["Sansón","Gedeón","Saúl","Elías"],correcta:0,
+   pista:"Dalila lo traicionó y los filisteos lo capturaron."},
+  {p:"¿Quién interpretó los sueños del faraón en Egipto?",
+   opciones:["José","Daniel","Jacob","Aarón"],correcta:0,
+   pista:"Su padre le regaló una túnica de colores."},
+  {p:"¿Qué rey escribió muchos de los Proverbios?",
+   opciones:["Salomón","David","Ezequías","Josías"],correcta:0,
+   pista:"Pidió sabiduría en lugar de riquezas."},
+  {p:"¿Cómo se llamaba el hermano de Moisés que hablaba por él?",
+   opciones:["Aarón","Josué","Caleb","Gersón"],correcta:0,
+   pista:"Fue el primer sumo sacerdote de Israel."},
+  {p:"¿Qué profeta fue llevado al cielo en un torbellino?",
+   opciones:["Elías","Eliseo","Isaías","Jeremías"],correcta:0,
+   pista:"Su discípulo Eliseo heredó su manto."},
+  {p:"¿Cuántos años vagó Israel por el desierto antes de entrar a Canaán?",
+   opciones:["Cuarenta","Veinte","Setenta","Diez"],correcta:0,
+   pista:"Coincide con los días que Moisés estuvo en el Sinaí."},
+  {p:"¿Quién fue el primer rey de Israel?",
+   opciones:["Saúl","David","Salomón","Samuel"],correcta:0,
+   pista:"Fue ungido por Samuel; era de la tribu de Benjamín."},
+  {p:"¿Qué mujer se convirtió en estatua de sal por mirar atrás?",
+   opciones:["La esposa de Lot","Raquel","Débora","Rut"],correcta:0,
+   pista:"Ocurrió al huir de Sodoma y Gomorra."},
+  {p:"¿Quién mató a su hermano Abel?",
+   opciones:["Caín","Set","Enoc","Lamec"],correcta:0,
+   pista:"Fue el primer asesinato de la historia."},
+  {p:"¿En qué monte recibió Moisés los Diez Mandamientos?",
+   opciones:["Sinaí","Ararat","Sion","Carmelo"],correcta:0,
+   pista:"También se le conoce como Horeb."},
+  {p:"¿Cuántos mandamientos entregó Dios a Moisés?",
+   opciones:["Diez","Doce","Siete","Cuarenta"],correcta:0,
+   pista:"Están escritos en dos tablas de piedra."},
+  {p:"¿Quién ungió a David como rey cuando era un joven pastor?",
+   opciones:["Samuel","Natán","Elí","Saúl"],correcta:0,
+   pista:"Fue el último juez de Israel."},
+  {p:"¿Quién sucedió a Moisés como líder de Israel?",
+   opciones:["Josué","Caleb","Aarón","Gedeón"],correcta:0,
+   pista:"Dios le dijo: 'Esfuérzate y sé valiente'."},
+  {p:"¿Cuál es el primer libro de la Biblia?",
+   opciones:["Génesis","Éxodo","Salmos","Job"],correcta:0,
+   pista:"Su nombre significa 'origen' o 'principio'."},
+  {p:"¿Quién era el padre de Isaac?",
+   opciones:["Abraham","Jacob","José","Noé"],correcta:0,
+   pista:"Dios le prometió una descendencia tan numerosa como las estrellas."},
+  {p:"¿Qué patriarca fue vendido por sus hermanos a Egipto?",
+   opciones:["José","Benjamín","Judá","Rubén"],correcta:0,
+   pista:"Llegó a ser gobernador de Egipto bajo el faraón."},
+  {p:"¿Cómo se llamaba el hijo que Abraham tuvo con Sara en la vejez?",
+   opciones:["Isaac","Ismael","Jacob","Esaú"],correcta:0,
+   pista:"Su nombre significa 'risa'."},
+  {p:"¿Qué hombre caminó con Dios y fue llevado sin morir?",
+   opciones:["Enoc","Elías","Noé","Matusalén"],correcta:0,
+   pista:"Génesis dice que 'caminó con Dios'."},
+  {p:"¿Qué ciudades destruyó Dios con fuego y azufre?",
+   opciones:["Sodoma y Gomorra","Nínive y Babilonia","Jericó y Ai","Tiro y Sidón"],correcta:0,
+   pista:"La esposa de Lot miró atrás y quedó convertida en sal."},
+
+  /* ---------- NUEVO TESTAMENTO ---------- */
+  {p:"¿Quién negó a Jesús tres veces antes de que cantara el gallo?",
+   opciones:["Pedro","Juan","Judas","Tomás"],correcta:0,
+   pista:"Jesús le puso el nombre de 'piedra'."},
+  {p:"¿Cuántos discípulos eligió Jesús?",
+   opciones:["Doce","Diez","Siete","Cuarenta"],correcta:0,
+   pista:"Coincide con el número de tribus de Israel."},
+  {p:"¿Cuál fue el primer milagro de Jesús?",
+   opciones:["Convertir agua en vino","Sanar a un ciego","Caminar sobre el agua","Multiplicar los panes"],correcta:0,
+   pista:"Ocurrió en una boda, en Caná de Galilea."},
+  {p:"¿Quién bautizó a Jesús en el río Jordán?",
+   opciones:["Juan el Bautista","Pedro","Santiago","Zacarías"],correcta:0,
+   pista:"Vestía de pelo de camello y comía langostas y miel silvestre."},
+  {p:"¿Qué apóstol era recaudador de impuestos antes de seguir a Jesús?",
+   opciones:["Mateo","Lucas","Marcos","Andrés"],correcta:0,
+   pista:"También se le conoce como Leví."},
+  {p:"¿Quién fue el primer mártir cristiano, apedreado por su fe?",
+   opciones:["Esteban","Pablo","Santiago","Bernabé"],correcta:0,
+   pista:"Saulo (después Pablo) estaba presente aprobando su muerte."},
+  {p:"¿En qué ciudad nació Jesús?",
+   opciones:["Belén","Nazaret","Jerusalén","Cafarnaún"],correcta:0,
+   pista:"Allí lo visitaron los magos de Oriente."},
+  {p:"¿Qué apóstol dudó de la resurrección hasta ver las heridas de Jesús?",
+   opciones:["Tomás","Pedro","Felipe","Bartolomé"],correcta:0,
+   pista:"Jesús le dijo: 'Bienaventurados los que no vieron y creyeron'."},
+  {p:"¿Qué discípulo traicionó a Jesús por treinta piezas de plata?",
+   opciones:["Judas Iscariote","Pedro","Mateo","Santiago"],correcta:0,
+   pista:"Era el encargado de la bolsa del grupo."},
+  {p:"¿Quién era la madre de Jesús?",
+   opciones:["María","Marta","Isabel","Ana"],correcta:0,
+   pista:"El ángel Gabriel le anunció el nacimiento."},
+  {p:"¿Qué ángel anunció a María el nacimiento de Jesús?",
+   opciones:["Gabriel","Miguel","Rafael","Uriel"],correcta:0,
+   pista:"También anunció el nacimiento de Juan el Bautista."},
+  {p:"¿Quién escribió el libro de Apocalipsis?",
+   opciones:["Juan","Pablo","Pedro","Lucas"],correcta:0,
+   pista:"Lo escribió desterrado en la isla de Patmos."},
+  {p:"¿Cuál es el último libro de la Biblia?",
+   opciones:["Apocalipsis","Malaquías","Judas","Filemón"],correcta:0,
+   pista:"Su nombre significa 'revelación'."},
+  {p:"¿Qué apóstol caminó sobre el agua hacia Jesús?",
+   opciones:["Pedro","Juan","Santiago","Andrés"],correcta:0,
+   pista:"Empezó a hundirse cuando dudó."},
+  {p:"¿Cuántos panes y peces usó Jesús para alimentar a cinco mil?",
+   opciones:["5 panes y 2 peces","3 panes y 3 peces","7 panes y 1 pez","2 panes y 5 peces"],correcta:0,
+   pista:"Sobraron doce cestas llenas."},
+  {p:"¿A quién resucitó Jesús después de cuatro días en el sepulcro?",
+   opciones:["Lázaro","Jairo","El hijo de la viuda","Tabita"],correcta:0,
+   pista:"Era hermano de Marta y María."},
+  {p:"¿Quién escribió la mayoría de las cartas del Nuevo Testamento?",
+   opciones:["Pablo","Pedro","Juan","Santiago"],correcta:0,
+   pista:"Antes se llamaba Saulo y perseguía a los cristianos."},
+  {p:"¿En qué ciudad predicó Pablo en el Areópago?",
+   opciones:["Atenas","Roma","Corinto","Éfeso"],correcta:0,
+   pista:"Es la capital de Grecia."},
+  {p:"¿Qué significa el nombre 'Emanuel'?",
+   opciones:["Dios con nosotros","Príncipe de paz","Salvador","Rey de reyes"],correcta:0,
+   pista:"Isaías lo profetizó siglos antes del nacimiento de Jesús."},
+  {p:"¿Cuál es el salmo más conocido de la Biblia?",
+   opciones:["Salmo 23","Salmo 1","Salmo 51","Salmo 91"],correcta:0,
+   pista:"Comienza con 'Jehová es mi pastor'."},
+  {p:"¿Qué apóstol era pescador antes de seguir a Jesús?",
+   opciones:["Pedro","Mateo","Pablo","Esteban"],correcta:0,
+   pista:"Jesús le dijo: 'Te haré pescador de hombres'."},
+  {p:"¿Quién era el padre de Juan el Bautista?",
+   opciones:["Zacarías","Simeón","José","Ananías"],correcta:0,
+   pista:"Era sacerdote y quedó mudo hasta el nacimiento de Juan."},
+  {p:"¿Cuántos libros tiene el Nuevo Testamento?",
+   opciones:["27","39","66","12"],correcta:0,
+   pista:"El Antiguo tiene 39."},
+  {p:"¿Qué mujer fue la primera en ver a Jesús resucitado?",
+   opciones:["María Magdalena","María la madre de Jesús","Marta","Salomé"],correcta:0,
+   pista:"Jesús la llamó por su nombre en el jardín."}
+];
+
+/* =========================================================
+   PROMESAS BÍBLICAS (aleatorias al final)
+   ========================================================= */
+const PROMESAS = [
+  {t:"Porque yo sé los planes que tengo para ustedes, planes de bienestar y no de calamidad, para darles un futuro lleno de esperanza.",r:"Jeremías 29:11"},
+  {t:"Todo lo puedo en Cristo que me fortalece.",r:"Filipenses 4:13"},
+  {t:"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios. Te fortaleceré y te ayudaré.",r:"Isaías 41:10"},
+  {t:"Jehová es mi pastor; nada me faltará.",r:"Salmo 23:1"},
+  {t:"Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia.",r:"Proverbios 3:5"},
+  {t:"El Señor es mi luz y mi salvación; ¿de quién temeré?",r:"Salmo 27:1"},
+  {t:"Echa sobre Jehová tu carga, y él te sustentará.",r:"Salmo 55:22"},
+  {t:"Esfuérzate y sé valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo dondequiera que vayas.",r:"Josué 1:9"},
+  {t:"Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.",r:"Salmo 46:1"},
+  {t:"Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.",r:"Mateo 6:33"},
+  {t:"El amor es sufrido, es benigno; el amor no tiene envidia, el amor no es jactancioso, no se envanece.",r:"1 Corintios 13:4"},
+  {t:"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree no se pierda.",r:"Juan 3:16"},
+  {t:"Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.",r:"Mateo 11:28"},
+  {t:"El gozo de Jehová es vuestra fuerza.",r:"Nehemías 8:10"},
+  {t:"Encomienda a Jehová tus obras, y tus pensamientos serán afirmados.",r:"Proverbios 16:3"}
+];
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const TOTAL = 18;
+const $ = s => document.querySelector(s);
+const azar = a => a.map(v => [Math.random(), v]).sort((x,y) => x[0]-y[0]).map(v => v[1]);
+
+let mazo = [], i = 0, puntos = 0, aciertos = 0, racha = 0;
+let pistaUsada = false, bloqueado = false;
+
+/* =========================================================
+   SONIDO (sin archivos)
+   ========================================================= */
+let ctxAudio;
+function beep(freq, dur = .12, tipo = 'sine', vol = .06){
+  try{
+    ctxAudio = ctxAudio || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctxAudio.createOscillator(), g = ctxAudio.createGain();
+    o.type = tipo; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ctxAudio.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, ctxAudio.currentTime + dur);
+    o.connect(g); g.connect(ctxAudio.destination);
+    o.start(); o.stop(ctxAudio.currentTime + dur);
+  }catch(e){}
+}
+
+/* =========================================================
+   NAVEGACIÓN
+   ========================================================= */
+function mostrar(id){
+  document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+  document.getElementById(id).classList.add('activa');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* =========================================================
+   EMPEZAR
+   ========================================================= */
+function comenzar(){
+  mazo = azar(BANCO).slice(0, TOTAL).map(q => {
+    const mez = azar(q.opciones.map((t, k) => ({t, ok: k === q.correcta})));
+    return {
+      p: q.p,
+      pista: q.pista,
+      opciones: mez.map(o => o.t),
+      correcta: mez.findIndex(o => o.ok)
+    };
+  });
+  i = 0; puntos = 0; aciertos = 0; racha = 0;
+  actualizarHUD();
+  mostrar('quiz');
+  pintar();
+}
+
+/* =========================================================
+   HUD
+   ========================================================= */
+function actualizarHUD(){
+  $('#hudPuntos').textContent = puntos;
+  $('#hudAciertos').textContent = aciertos + '/' + mazo.length;
+  $('#hudRacha').textContent = racha;
+  const chip = $('#chipRacha');
+  chip.classList.toggle('oculto', racha < 2);
+  chip.classList.toggle('hot', racha >= 3);
+}
+
+/* =========================================================
+   PINTAR PREGUNTA
+   ========================================================= */
+function pintar(){
+  const q = mazo[i];
+  bloqueado = false;
+  pistaUsada = false;
+
+  $('#numPreg').textContent = `Pregunta ${i + 1} / ${mazo.length}`;
+  $('#progreso').style.width = ((i / mazo.length) * 100) + '%';
+  $('#textoPregunta').textContent = q.p;
+  $('#pista').textContent = q.pista;
+  $('#cajaPista').classList.remove('visible');
+  $('#feedback').className = 'feedback';
+  $('#feedback').innerHTML = '';
+  $('#btnPista').disabled = false;
+  $('#btnSiguiente').classList.remove('visible');
+
+  const cont = $('#opciones');
+  cont.innerHTML = '';
+  q.opciones.forEach((t, idx) => {
+    const b = document.createElement('button');
+    b.className = 'opcion';
+    b.innerHTML = `<span class="letra">${'ABCD'[idx]}</span><span>${t}</span>`;
+    b.onclick = () => responder(idx);
+    cont.appendChild(b);
+  });
+}
+
+/* =========================================================
+   RESPONDER
+   ========================================================= */
+function responder(idx){
+  if (bloqueado) return;
+  bloqueado = true;
+  const q = mazo[i];
+  const botones = [...document.querySelectorAll('.opcion')];
+
+  botones.forEach((b, k) => {
+    b.classList.add('bloqueada');
+    if (k === q.correcta) b.classList.add('correcta');
+    if (k === idx && idx !== q.correcta) b.classList.add('incorrecta');
+  });
+
+  $('#btnPista').disabled = true;
+  const fb = $('#feedback');
+
+  if (idx === q.correcta){
+    const ganados = pistaUsada ? 5 : 10;
+    puntos += ganados;
+    aciertos++;
+    racha++;
+    fb.className = 'feedback ok visible';
+    fb.innerHTML = `✅ ¡Correcto! <strong>+${ganados} pts</strong>` +
+                   (racha > 1 ? ` · 🔥 racha de ${racha}` : '');
+    beep(880, .1);
+    setTimeout(() => beep(1240, .13), 90);
+  } else {
+    racha = 0;
+    fb.className = 'feedback mal visible';
+    fb.innerHTML = `❌ Casi… la respuesta era <strong>${q.opciones[q.correcta]}</strong>`;
+    beep(230, .2, 'sawtooth', .05);
+  }
+
+  actualizarHUD();
+  const btn = $('#btnSiguiente');
+  btn.textContent = (i === mazo.length - 1) ? 'Ver resultado 🏁' : 'Siguiente →';
+  btn.classList.add('visible');
+}
+
+/* =========================================================
+   SIGUIENTE
+   ========================================================= */
+$('#btnSiguiente').onclick = () => {
+  i++;
+  if (i >= mazo.length) terminar();
+  else pintar();
+};
+
+/* =========================================================
+   PISTA
+   ========================================================= */
+$('#btnPista').onclick = () => {
+  if (bloqueado || pistaUsada) return;
+  pistaUsada = true;
+  $('#cajaPista').classList.add('visible');
+  $('#btnPista').disabled = true;
+  beep(540, .09, 'triangle', .05);
+};
+
+/* =========================================================
+   CONTADOR ANIMADO
+   ========================================================= */
+function contar(el, objetivo, dur = 1100){
+  const inicio = performance.now();
+  function paso(now){
+    const t = Math.min((now - inicio) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(objetivo * ease);
+    if (t < 1) requestAnimationFrame(paso);
+    else el.textContent = objetivo;
+  }
+  requestAnimationFrame(paso);
+}
+
+/* =========================================================
+   FINAL
+   ========================================================= */
+function terminar(){
+  $('#progreso').style.width = '100%';
+  const total = mazo.length;
+  const precision = Math.round((aciertos / total) * 100);
+
+  $('#resAciertos').textContent = aciertos + '/' + total;
+  $('#resPrecision').textContent = precision + '%';
+  contar($('#resPuntos'), puntos, 1100);
+
+  let medalla, titulo, mensaje;
+  if (aciertos === total){
+    medalla = '🏆'; titulo = '¡Perfecto!';
+    mensaje = 'Eres un/a maestro/a de la Palabra. ¡Ni una sola falla!';
+  } else if (aciertos >= total - 2){
+    medalla = '🌟'; titulo = '¡Excelente!';
+    mensaje = 'Sabes muchísimo. Te faltó poquito para la perfección.';
+  } else if (aciertos >= total * .7){
+    medalla = '👏'; titulo = '¡Muy bien!';
+    mensaje = 'Buen conocimiento bíblico. Con un poco más, imbatible.';
+  } else if (aciertos >= total * .45){
+    medalla = '📖'; titulo = '¡Buen intento!';
+    mensaje = 'Vas por buen camino. Cada pregunta te enseñó algo nuevo.';
+  } else {
+    medalla = '🌱'; titulo = '¡A seguir leyendo!';
+    mensaje = 'Todo gran viaje empieza con una página. ¡Inténtalo otra vez!';
+  }
+
+  $('#medalla').textContent = medalla;
+  $('#tituloFinal').textContent = titulo;
+  $('#mensajeFinal').textContent = mensaje;
+
+  /* Promesa bíblica aleatoria */
+  const p = PROMESAS[Math.floor(Math.random() * PROMESAS.length)];
+  $('#promesaTexto').textContent = '"' + p.t + '"';
+  $('#promesaRef').textContent = '— ' + p.r;
+
+  mostrar('final');
+
+  if (precision >= 80){
+    setTimeout(()=>{ beep(880,.1); }, 200);
+    setTimeout(()=>{ beep(1100,.1); }, 320);
+    setTimeout(()=>{ beep(1400,.25); }, 450);
+  }
+}
+
+/* =========================================================
+   ATAJOS DE TECLADO
+   ========================================================= */
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('quiz').classList.contains('activa')) return;
+  if (e.key >= '1' && e.key <= '4'){
+    const b = document.querySelectorAll('.opcion')[+e.key - 1];
+    if (b) b.click();
+  }
+  if (e.key === 'Enter'){
+    const s = $('#btnSiguiente');
+    if (s.classList.contains('visible')) s.click();
+  }
+});
+</script>
+</body>
+</html>
